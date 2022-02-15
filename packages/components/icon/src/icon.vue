@@ -1,9 +1,6 @@
 <template>
-  <div class="w-icon">
-    <i class="w-icon-i" :style="style">
-      <slot></slot>
-    </i>
-  </div>
+  <i class="w-icon" :style="style">
+  </i>
 </template>
 
 <script lang="ts">
