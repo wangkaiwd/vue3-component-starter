@@ -12,6 +12,7 @@
   "license": "MIT",
   "devDependencies": {
     "@vitejs/plugin-vue": "^2.2.0",
+    "less": "^4.1.2",
     "vite": "^2.8.2"
   }
 }
