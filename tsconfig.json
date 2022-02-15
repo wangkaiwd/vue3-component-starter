@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "module": "ESNext",
+    "declaration": false,
+    "moduleResolution": "Node",
+    "removeComments": true,
+    "resolveJsonModule": true,
+    // Required in Vue projects
+    "jsx": "preserve",
+    // `"noImplicitThis": true` is part of `strict`
+    // Added again here in case some users decide to disable `strict`.
+    // This enables stricter inference for data properties on `this`.
+    "noImplicitThis": true,
+    "strict": true,
+    "target": "ESNext",
+    "noLib": false,
+    "sourceMap": true,
+    // Recommended
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    // See <https://github.com/vuejs/vue-cli/pull/5688>
+    "skipLibCheck": true
+  },
+  "exclude": [
+    "node_modules",
+    "**/__tests__",
+    "dist/**"
+  ]
+}

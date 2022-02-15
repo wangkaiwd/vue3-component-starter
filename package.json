@@ -1,0 +1,24 @@
+{
+  "name": "@sppk/vue3-component-starter",
+  "version": "0.0.1",
+  "description": "basic boilerplate for vue3 component library",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wangkaiwd/vue3-component-starter.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wangkaiwd/vue3-component-starter/issues"
+  },
+  "homepage": "https://github.com/wangkaiwd/vue3-component-starter#readme",
+  "devDependencies": {
+    "typescript": "^4.5.5",
+    "vue": "^3.2.31"
+  }
+}
