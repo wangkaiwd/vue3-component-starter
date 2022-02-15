@@ -9,4 +9,4 @@ pnpm dev --filter @sppk/play
 
 # 2
 pnpm -C play dev
-``` 
+```
