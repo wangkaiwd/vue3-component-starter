@@ -10,3 +10,11 @@ pnpm dev --filter @sppk/play
 # 2
 pnpm -C play dev
 ```
+
+### CSS
+* [attribute selector](https://developer.mozilla.org/en-US/docs/Web/CSS/Attribute_selectors)
+
+### package
+* [sucrase](https://github.com/alangpierce/sucrase)
+
+### gulp

@@ -4,7 +4,8 @@
   "description": "basic boilerplate for vue3 component library",
   "main": "index.js",
   "scripts": {
-    "dev": "pnpm dev --filter @sppk/play"
+    "dev": "pnpm dev --filter @sppk/play",
+    "build": "gulp -f build/gulpfile.ts"
   },
   "repository": {
     "type": "git",
@@ -18,6 +19,16 @@
   },
   "homepage": "https://github.com/wangkaiwd/vue3-component-starter#readme",
   "devDependencies": {
+    "@types/gulp": "^4.0.9",
+    "@types/gulp-autoprefixer": "^0.0.33",
+    "@types/gulp-clean-css": "^4.3.0",
+    "@types/gulp-less": "^0.0.32",
+    "gulp": "^4.0.2",
+    "gulp-autoprefixer": "^8.0.0",
+    "gulp-clean-css": "^4.3.0",
+    "gulp-less": "^5.0.0",
+    "gulp-typescript": "^6.0.0-alpha.1",
+    "sucrase": "^3.20.3",
     "typescript": "^4.5.5",
     "vue": "^3.2.31"
   },
