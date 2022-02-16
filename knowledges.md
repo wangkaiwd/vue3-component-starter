@@ -18,3 +18,6 @@ pnpm -C play dev
 * [sucrase](https://github.com/alangpierce/sucrase)
 
 ### gulp
+
+### rollup
+* [javascript api](https://rollupjs.org/guide/en/#javascript-api)
