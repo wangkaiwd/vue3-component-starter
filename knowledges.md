@@ -21,3 +21,4 @@ pnpm -C play dev
 
 ### rollup
 * [javascript api](https://rollupjs.org/guide/en/#javascript-api)
+* [output.paths](https://rollupjs.org/guide/en/#outputpaths)

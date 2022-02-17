@@ -12,7 +12,7 @@ export const buildPackages = (dirname: string, name: string) => {
   const tasks = Object.entries(buildConfig).map(([module, config]) => {
     return withTaskName(`build: ${name}:${module}`, async () => {
       const tsProject = ts.createProject(tsConfig, { declaration: true, module: config.module, strict: false });
-      const output = path.resolve(outDir, name, config.output.name);
+      const output = path.resolve(outDir, config.output.name, name);
       return src(inputs)
         .pipe(tsProject())
         .pipe(dest(output));

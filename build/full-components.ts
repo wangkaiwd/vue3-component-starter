@@ -5,27 +5,10 @@ import ts from 'rollup-plugin-typescript2';
 import vue from 'rollup-plugin-vue';
 import { OutputOptions, rollup } from 'rollup';
 import path from 'path';
-import { csRoot, outDir, projectRoot } from './utils/paths';
-
-const tsConfig = path.resolve(projectRoot, 'tsconfig.json');
+import { csRoot, outDir, tsConfig } from './utils/paths';
+import { createInputConfig } from './utils/rollupConfig';
 
 const buildFull = async () => {
-  const config = {
-    input: path.resolve(csRoot, 'index.ts'),
-    external: (id: string) => /^vue/.test(id),
-    plugins: [
-      //
-      vue(),
-      resolve(),
-      commonjs(),
-      ts({
-        tsconfig: tsConfig,
-        tsconfigOverride: {
-          compilerOptions: { sourceMap: false }
-        }
-      }),
-    ]
-  };
   const outputOptions: OutputOptions[] = [
     {
       format: 'umd',
@@ -41,7 +24,7 @@ const buildFull = async () => {
       file: path.resolve(outDir, 'index.esm.js')
     }
   ];
-  const bundle = await rollup(config);
+  const bundle = await rollup(createInputConfig(path.resolve(csRoot, 'index.ts')));
   return Promise.all(outputOptions.map(output => bundle.write(output)));
 };
 export const buildFullComponents = parallel(buildFull);

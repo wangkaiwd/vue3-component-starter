@@ -1,7 +1,8 @@
 import { spawn, SpawnOptions } from 'child_process';
 import { projectRoot } from './paths';
+import { TaskFunction } from 'gulp';
 
-export const withTaskName = (displayName: string, fn: (...args: any[]) => Promise<any>) => Object.assign(fn, { displayName });
+export const withTaskName = (displayName: string, fn: TaskFunction) => Object.assign(fn, { displayName });
 
 export const run = (command: string, options?: SpawnOptions) => {
   return new Promise((resolve, reject) => {
