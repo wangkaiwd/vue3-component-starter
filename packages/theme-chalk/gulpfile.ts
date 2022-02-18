@@ -1,30 +1,35 @@
 import less from 'gulp-less';
 import autoPrefixer from 'gulp-autoprefixer';
-import { dest, parallel, src } from 'gulp';
+import { dest, parallel, series, src } from 'gulp';
 import cleanCss from 'gulp-clean-css';
 import path from 'path';
 import { outDir } from '../../build/utils/paths';
 import { withTaskName } from '../../build/utils';
 
-const css = src('./src/*.less')
+const css = () => src('./css/*.less')
   .pipe(less())
   .pipe(autoPrefixer({ cascade: false }))
   .pipe(cleanCss());
-const font = src('./src/fonts/**').pipe(cleanCss());
+const font = () => src('./fonts/**').pipe(cleanCss());
 
-
+const copyFullCss = (format: string, type: string) => {
+  return css().pipe(dest(path.resolve(outDir, `${format}/theme-chalk/${type}`)));
+};
+const copyFullFont = (format: string, type: string) => {
+  return font().pipe(dest(path.resolve(outDir, `${format}/theme-chalk/${type}`)));
+};
 export default parallel(
-  withTaskName('copyCssToLib', () => {
-    return css.pipe(dest(path.resolve(outDir, 'lib/theme-chalk/css')));
-  }),
   withTaskName('copyCssToEs', () => {
-    return css.pipe(dest(path.resolve(outDir, 'es/theme-chalk/css')));
+    return copyFullCss('es', 'css');
   }),
-  withTaskName('copyFontToLib', () => {
-    return font.pipe(dest(path.resolve(outDir, 'lib/theme-chalk/fonts')));
+  withTaskName('copyCssToLib', () => {
+    return copyFullCss('lib', 'css');
   }),
   withTaskName('copyFontToEs', () => {
-    return font.pipe(dest(path.resolve(outDir, 'es/theme-chalk/fonts')));
+    return copyFullFont('es', 'fonts');
+  }),
+  withTaskName('copyFontToLib', () => {
+    return copyFullFont('lib', 'fonts');
   })
 );
 

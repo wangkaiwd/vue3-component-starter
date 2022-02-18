@@ -3,23 +3,17 @@ import { cRoot, outDir, projectRoot, tsConfig } from './utils/paths';
 import path from 'path';
 import { ModuleFormat, OutputOptions, rollup } from 'rollup';
 import { buildConfig } from './build-info';
-import { createInputConfig, pathRewrite } from './utils/rollupConfig';
+import { buildByRollup, createInputConfig, pathRewrite } from './utils/rollupConfig';
 import { parallel } from 'gulp';
 import { Project } from 'ts-morph';
 import fs from 'fs/promises';
 import { parse } from '@vue/compiler-sfc';
+import { run } from './utils';
 
 const buildComponent = async (dir: string) => {
-  const bundle = await rollup(createInputConfig(path.resolve(cRoot, `${dir}/index.ts`)));
-  return Promise.all(Object.entries(buildConfig).map(([module, config]) => {
-    const outputOptions: OutputOptions = {
-      format: config.format as ModuleFormat,
-      file: path.resolve(config.output.path, 'components', dir, 'index.js'),
-      exports: 'named',
-      paths: pathRewrite(config.output.name)
-    };
-    return bundle.write(outputOptions);
-  }));
+  const input = `${dir}/index.ts`;
+  const outputFile = `components/${dir}/index.js`;
+  return buildByRollup(input, outputFile);
 };
 
 const build = async () => {
@@ -31,8 +25,10 @@ const build = async () => {
 const genTypes = async () => {
   const project = new Project({
     compilerOptions: {
+      // must to config declaration:true
+      declaration: true,
       emitDeclarationOnly: true,
-      outDir,
+      outDir: path.resolve(outDir, 'types'),
       baseUrl: projectRoot,
       paths: {
         '@sppk/*': ['packages/*'],
@@ -47,11 +43,11 @@ const genTypes = async () => {
     onlyFiles: true,
     absolute: true
   });
-  const sourceFiles = [];
+  const sourceFiles: any[] = [];
   // await Promise.all
   await Promise.all(filePaths.map(async (filePath) => {
     if (filePath.endsWith('.vue')) {
-      const source = await fs.readFile(filePath, 'utf-8');
+      const source = await fs.readFile(filePath, 'utf8');
       const { descriptor } = parse(source);
       const { script } = descriptor;
       if (script) {
@@ -60,12 +56,38 @@ const genTypes = async () => {
       }
     }
     if (filePath.endsWith('.ts')) {
-      project.addSourceFileAtPath(filePath);
+      const sourceFile = project.addSourceFileAtPath(filePath);
+      sourceFiles.push(sourceFile);
     }
   }));
   await project.emit({ emitOnlyDtsFiles: true });
+
+  const tasks = sourceFiles.map(async (sourceFile) => {
+    const emitOutput = sourceFile.getEmitOutput();
+    const subTasks = emitOutput.getOutputFiles().map(async (outputFile: any) => {
+      const filePath = outputFile.getFilePath();
+      await fs.mkdir(path.dirname(filePath), { recursive: true });
+      await fs.writeFile(filePath, pathRewrite('es')(outputFile.getText()), 'utf8');
+    });
+    await Promise.all(subTasks);
+  });
+  await Promise.all(tasks);
 };
 
+const copyTypes = () => {
+  const copy = (format: string) => {
+    const src = path.resolve(outDir, 'types/components');
+    const dest = path.resolve(outDir, format, 'components');
+    return () => run(`cp -r ${src}/* ${dest}`);
+  };
+  return parallel(copy('es'), copy('lib'));
+};
+
+const buildComponentsEntry = async () => {
+  const input = 'components/index.ts';
+  const outputFile = 'components/index.js';
+  return buildByRollup(input, outputFile);
+};
 // task: an asynchronous JavaScript function
 // parallel/series: return a function of the composed tasks or functions
-export const buildComponents = parallel(genTypes);
+export const buildComponents = parallel(build, genTypes, copyTypes(), buildComponentsEntry);

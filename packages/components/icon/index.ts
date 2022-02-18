@@ -4,3 +4,4 @@ import { withInstall } from '@sppk/utils';
 const WIcon = withInstall(Icon);
 export { WIcon };
 export default WIcon;
+export * from './src/prop';

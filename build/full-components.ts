@@ -1,12 +1,8 @@
 import { parallel } from 'gulp';
-import resolve from '@rollup/plugin-node-resolve';
-import commonjs from '@rollup/plugin-commonjs';
-import ts from 'rollup-plugin-typescript2';
-import vue from 'rollup-plugin-vue';
 import { OutputOptions, rollup } from 'rollup';
 import path from 'path';
-import { csRoot, outDir, tsConfig } from './utils/paths';
-import { createInputConfig } from './utils/rollupConfig';
+import { csRoot, outDir } from './utils/paths';
+import { buildByRollup, createInputConfig } from './utils/rollupConfig';
 
 const buildFull = async () => {
   const outputOptions: OutputOptions[] = [
@@ -27,5 +23,10 @@ const buildFull = async () => {
   const bundle = await rollup(createInputConfig(path.resolve(csRoot, 'index.ts')));
   return Promise.all(outputOptions.map(output => bundle.write(output)));
 };
-export const buildFullComponents = parallel(buildFull);
+const buildEntry = async () => {
+  const input = path.resolve(csRoot, 'index.ts');
+  const outputFile = 'index.js';
+  return buildByRollup(input, outputFile);
+};
+export const buildFullComponents = parallel(buildEntry);
 
