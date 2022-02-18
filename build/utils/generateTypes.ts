@@ -1,32 +1,31 @@
-import glob from 'fast-glob';
-import { cRoot, csRoot, outDir, projectRoot, tsConfig } from './utils/paths';
-import path from 'path';
-import { buildByRollup, pathRewrite } from './utils/rollupConfig';
-import { parallel, series } from 'gulp';
 import { Project } from 'ts-morph';
+import path from 'path';
+import { projectRoot, tsConfig } from './paths';
+import glob from 'fast-glob';
 import fs from 'fs/promises';
 import { parse } from '@vue/compiler-sfc';
-import { run } from './utils';
+import { pathRewrite } from './rollupConfig';
 
-const buildComponent = async (dir: string) => {
-  const input = path.resolve(cRoot, `${dir}/index.ts`);
-  const outputFile = `components/${dir}/index.js`;
-  return buildByRollup(input, outputFile);
-};
+interface Options {
+  cwd: string;
+  outDir: string;
+  replace?: (source: string) => string;
+  skipFileDependencyResolution?: boolean;
+}
 
-const build = async () => {
-  const dirs = await glob('*', { cwd: cRoot, onlyDirectories: true });
-  const tasks = dirs.map(buildComponent);
-  return Promise.all(tasks);
-};
-
-const genTypes = async () => {
+export const generateTypes = async ({
+  cwd,
+  outDir,
+  replace = pathRewrite('es'),
+  skipFileDependencyResolution = false
+}: Options) => {
   const project = new Project({
     compilerOptions: {
       // must to config declaration:true
       declaration: true,
       emitDeclarationOnly: true,
-      outDir: path.resolve(outDir, 'types'),
+      outDir,
+      rootDir: cwd,
       baseUrl: projectRoot,
       paths: {
         '@sppk/*': ['packages/*'],
@@ -34,10 +33,11 @@ const genTypes = async () => {
       preserveSymlinks: true,
     },
     tsConfigFilePath: tsConfig,
+    skipFileDependencyResolution,
     skipAddingFilesFromTsConfig: true,
   });
   const filePaths = await glob('**/*', {
-    cwd: cRoot,
+    cwd,
     onlyFiles: true,
     absolute: true
   });
@@ -65,27 +65,10 @@ const genTypes = async () => {
     const subTasks = emitOutput.getOutputFiles().map(async (outputFile: any) => {
       const filePath = outputFile.getFilePath();
       await fs.mkdir(path.dirname(filePath), { recursive: true });
-      await fs.writeFile(filePath, pathRewrite('es')(outputFile.getText()), 'utf8');
+      // fixme: there directly replace may be occur problem, improve to replace import or require statement better
+      await fs.writeFile(filePath, replace(outputFile.getText()), 'utf8');
     });
     await Promise.all(subTasks);
   });
-  return Promise.all(tasks);
+  await Promise.all(tasks);
 };
-
-const copyTypes = () => {
-  const copy = (format: string) => {
-    const src = path.resolve(outDir, 'types/components/*');
-    const dest = path.resolve(outDir, format, 'components');
-    return () => run(`cp -r ${src} ${dest}`);
-  };
-  return parallel(copy('es'), copy('lib'));
-};
-
-const buildComponentsEntry = async () => {
-  const input = path.resolve(cRoot, 'index.ts');
-  const outputFile = 'components/index.js';
-  return buildByRollup(input, outputFile);
-};
-// task: an asynchronous JavaScript function
-// parallel/series: return a function of the composed tasks or functions
-export const buildComponents = series(parallel(build, buildComponentsEntry), series(genTypes, copyTypes()));

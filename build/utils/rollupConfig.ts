@@ -1,4 +1,4 @@
-import { cRoot, tsConfig } from './paths';
+import { tsConfig } from './paths';
 import vue from 'rollup-plugin-vue';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
@@ -33,13 +33,12 @@ export const createInputConfig = (input: string | string[]) => {
 export const pathRewrite = (format: string) => {
   return (id: string) => id.replace('@sppk', `@sppk/components-starter/${format}`);
 };
-
 export const buildByRollup = async (input: string | string[], outPutFile: string) => {
   const bundle = await rollup(createInputConfig(input));
   return Promise.all(Object.values(buildConfig).map((config) => {
     const outputOptions: OutputOptions = {
       format: config.format as ModuleFormat,
-      file: path.resolve(config.output.path, outPutFile),
+      file: path.join(config.output.path, outPutFile),
       exports: 'named',
       paths: pathRewrite(config.output.name)
     };

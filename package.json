@@ -1,6 +1,7 @@
 {
   "name": "@sppk/vue3-component-starter",
   "version": "0.0.1",
+  "private": true,
   "description": "basic boilerplate for vue3 component library",
   "main": "index.js",
   "scripts": {

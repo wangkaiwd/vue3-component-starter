@@ -17,3 +17,6 @@ export const run = (command: string, options?: SpawnOptions) => {
     app.on('error', reject);
   });
 };
+// export const copy = (src: string, dest: string) => {
+//   return () => run(`cp -r ${src}/* ${dest}`);
+// };

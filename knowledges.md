@@ -22,3 +22,7 @@ pnpm -C play dev
 ### rollup
 * [javascript api](https://rollupjs.org/guide/en/#javascript-api)
 * [output.paths](https://rollupjs.org/guide/en/#outputpaths)
+
+### try use
+* vite not work
+* user maybe use different version dependency with your library: such as vue 

@@ -1,8 +1,10 @@
-import { parallel } from 'gulp';
+import { parallel, series } from 'gulp';
 import { OutputOptions, rollup } from 'rollup';
 import path from 'path';
 import { csRoot, outDir } from './utils/paths';
 import { buildByRollup, createInputConfig } from './utils/rollupConfig';
+import { generateTypes } from './utils/generateTypes';
+import { run } from './utils';
 
 const buildFull = async () => {
   const outputOptions: OutputOptions[] = [
@@ -28,5 +30,25 @@ const buildEntry = async () => {
   const outputFile = 'index.js';
   return buildByRollup(input, outputFile);
 };
-export const buildFullComponents = parallel(buildEntry);
+// cwd,outDir
+const generateEntryTypes = async () => {
+  await generateTypes({
+    cwd: csRoot,
+    outDir: path.resolve(outDir, 'types/entry'),
+    replace: (source) => {
+      return source.replace('@sppk', '.');
+    },
+    skipFileDependencyResolution: true
+  });
+};
+
+const copyEntryTypes = () => {
+  const copy = (format: string) => {
+    const src = path.resolve(outDir, 'types/entry/*');
+    const dest = path.resolve(outDir, format);
+    return () => run(`cp -r ${src} ${dest}`);
+  };
+  return parallel(copy('es'), copy('lib'));
+};
+export const buildFullComponents = parallel(buildFull, buildEntry, series(generateEntryTypes, copyEntryTypes()));
 
